@@ -1,6 +1,7 @@
 const express =  require('express');
 const router = express.Router();
 const auth = require('../../middleware/auth');
+const sgmail = require('../../middleware/email');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('config');
@@ -64,7 +65,7 @@ router.post(
       jwt.sign(
         payload,
         config.get('jwtSecret'),
-        { expiresIn: 3600 },
+        { expiresIn: 36000 },
         (err, token) => {
           if (err) throw err;
           res.json({ token });
