@@ -1,8 +1,10 @@
 const express =  require('express');
 const router = express.Router();
+const fs = require('fs');
 const auth = require('../../middleware/auth');
+const sendEmail = require('../../middleware/email');
 const { check, validationResult } = require('express-validator');
-
+const app = express();
 const Lead = require('../../models/Lead');
 const User = require('../../models/User');
 
@@ -105,12 +107,38 @@ router.post(
 			commentBox: req.body.commentBox,
 			status: req.body.status,
 			clientName: req.body.clientName,
-	        clientEmail: req.body.clientEmail,
-	        clientPhoneNumber: req.body.clientPhoneNumber
-	     }
+	    clientEmail: req.body.clientEmail,
+	    clientPhoneNumber: req.body.clientPhoneNumber
+	   }
 
-	     lead.visits.unshift(newVisit);
+     //Send Email Functionality
+     // Change readFileSync to readFile
 
+     var template = req.body.status;
+     var subject = '';
+
+      switch(template) {
+        case 'Met':
+          var htmlTemplate = fs.readFileSync("./routes/api/email_templates/met.html").toString();
+          subject = "Thank you: For your valuable time.";
+          break;
+        case 'Not met':
+          var htmlTemplate = fs.readFileSync("./routes/api/email_templates/not_met.html").toString();
+          subject = "Meeting Not held.";
+          break;
+        default:
+          console.log('None Selected')
+      }
+
+      const toEmail = req.body.clientEmail;
+      const toName = req.body.clientName;
+      const fromEmail = user.email;
+      const fromName = user.name;
+      const contentValue = htmlTemplate;
+
+      sendEmail(toEmail,toName,subject,fromEmail,fromName,contentValue);
+
+	   lead.visits.unshift(newVisit);
       await lead.save();
 
       res.json(lead.visits);
@@ -121,5 +149,10 @@ router.post(
     }
   }
 );
+
+
+// @route    POST api/lead/feedback/:id
+// @desc     remove feedback from a lead
+// @access   Private
 
 module.exports = router;
