@@ -121,17 +121,33 @@ router.post(
         case 'Met':
           // var htmlTemplate = fs.readFileSync("./routes/api/email_templates/met.html").toString();
           // subject = "Thank you: For your valuable time.";
+          lead.visits.unshift(newVisit);
+          await lead.save();
+          res.json(lead.visits);
           console.log('Met')
           break;
         case 'Not met':
           // var htmlTemplate = fs.readFileSync("./routes/api/email_templates/not_met.html").toString();
           // subject = "Meeting Not held.";
+          lead.visits.unshift(newVisit);
+          await lead.save();
+          res.json(lead.visits);
           console.log('Not met')
           break;
         case 'Close Lead':
+          var closeLead = await Lead.findOneAndUpdate(
+            { $and: [ { _id : req.params.id  }, { finalStatus: { $ne: "Lead closed" } } ] },
+            {$set: { finalStatus : "Lead closed"}},
+            {returnNewDocument: true});
+          res.json('Lead final status updated');
           console.log('Lead Closed')
           break;
         case 'Done':
+          var leadDone =  await Lead.findOneAndUpdate(
+            { $and: [ { _id : req.params.id  }, { finalStatus: { $ne: "Done" } } ] },
+            {$set: { finalStatus : "Done"}},
+            {returnNewDocument: true});
+          res.json('Lead final status updated');
           console.log('Lead Done')
           break;
         default:
@@ -146,11 +162,7 @@ router.post(
 
       //sendEmail(toEmail,toName,subject,fromEmail,fromName,contentValue);
 
-	   lead.visits.unshift(newVisit);
-      await lead.save();
-
-      res.json(lead.visits);
-
+	  
     } catch (err) {
       console.error(err.message);
       res.status(500).send('Server Error');
