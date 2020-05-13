@@ -59,6 +59,10 @@ const LeadSchema = new Schema({
       }
   }
 ],
+  finalStatus: {
+    type: String,
+    default: 'pending'
+  },
   date: {
     type: Date,
     default: Date.now
