@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import Spinner from '../layout/Spinner';
-import LeadItem from '../leads/LeadItem';
+import LeadItem from './LeadItem';
 import VisitItem from './VisitItem';
 import VisitForm from './VisitForm';
 import { getLead } from '../../actions/lead';
@@ -20,7 +20,7 @@ const Lead = ({ getLead, lead: { lead, loading }, match }) => {
       <Link to="/leads-log" className="btn">
         Back To Leads
       </Link>
-      <LeadItem lead={lead} showActions={false} fullContent={true} />
+      <LeadItem lead={lead} fullContent={true} />
       <VisitForm leadId={lead._id} />
       <div className="comments">
         {lead.visits.map((visit) => (
