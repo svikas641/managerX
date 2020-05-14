@@ -19,6 +19,7 @@ const Leads = ({ getLeads, lead: { leads, loading } }) => {
       <Link to="/dashboard" className="btn">
         Back To Dashboard
       </Link>
+      {' '}
       <div className="posts">
         {leads.map((lead) => (
           <LeadItem key={lead._id} lead={lead} />
