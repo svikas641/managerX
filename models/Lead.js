@@ -1,72 +1,73 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const LeadSchema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
-    ref: 'user'
+    ref: "user",
   },
   companyName: {
-            type: String,
-            required: true
-          },
+    type: String,
+    required: true,
+  },
   clientName: {
-            type: String,
-            required: true
-          },
+    type: String,
+    required: true,
+  },
   clientEmail: {
-            type: String,
-            required: true
-          },
+    type: String,
+    required: true,
+  },
   clientPhoneNumber: {
-            type: Number,
-            required: true
-          },
+    type: Number,
+    required: true,
+  },
   clientAddress: {
     type: String,
-    required: true
+    required: true,
   },
+  latLng: { type: [Object], blackbox: true },
   pincode: {
     type: Number,
-    required: true
+    required: true,
   },
-  salesPerson:{
+  salesPerson: {
     type: String,
-    required: true
+    required: true,
   },
-  visits:[
-  { 
+  visits: [
+    {
       commentBox: {
         type: String,
-        required: true
+        required: true,
       },
-      status:{
+      status: {
         type: String,
-        required: true
+        required: true,
       },
       clientName: {
-        type: String
+        type: String,
       },
       clientEmail: {
-        type: String
+        type: String,
       },
       clientPhoneNumber: {
-        type: Number
+        type: Number,
       },
       date: {
         type: Date,
-        default: Date.now
-      }
-  }
-],
+        default: Date.now,
+      },
+    },
+  ],
   finalStatus: {
     type: String,
-    default: 'pending'
+    default: "pending",
   },
   date: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
-module.exports = Lead = mongoose.model('lead', LeadSchema);
+module.exports = Lead = mongoose.model("lead", LeadSchema);
