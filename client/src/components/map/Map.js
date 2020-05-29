@@ -1,13 +1,8 @@
-import React, { useEffect } from "react";
-import {
-  GoogleMap,
-  useLoadScript,
-  Marker,
-  InfoWindow,
-  DirectionsService,
-} from "@react-google-maps/api";
+import React, { useEffect, useState } from "react";
+import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
 import { connect } from "react-redux";
 import { getPendingLeads } from "../../actions/lead";
+import { getMapData } from "../../actions/map";
 
 const mapContainerStyle = {
   height: "100vh",
@@ -15,8 +10,8 @@ const mapContainerStyle = {
 };
 
 const center = {
-  lat: 20.5937,
-  lng: 78.9629,
+  lat: 28.4089,
+  lng: 77.3178,
 };
 
 const options = {
@@ -24,88 +19,127 @@ const options = {
   zoomControl: true,
 };
 
-const leadData = [
-  {
-    finalStatus: "pending",
-    _id: "5eb7bb2f8d3f3a11c85992f8",
-    user: "5eb7bac08d3f3a11c85992f7",
-    companyName: "Singh Enterprises",
-    clientName: "Arjun singh",
-    clientEmail: "vikasgrowthfile@gmail.com",
-    clientPhoneNumber: 7788991122,
-    clientAddress: "Bangalore, kt",
-    lat: 20.932,
-    lng: 77.7523,
-    pincode: 765356,
-    salesPerson: "Vikas",
-  },
-  {
-    finalStatus: "pending",
-    _id: "5eb7bd9d8d3f3a11c85992fc",
-    user: "5eb7bac08d3f3a11c85992f7",
-    companyName: "Tomar Industires",
-    clientName: "Ajay Tomar",
-    clientEmail: "vikasgrowthfile@gmail.com",
-    clientPhoneNumber: 7788991122,
-    clientAddress: "Bangalore, kt",
-    lat: 19.1383,
-    lng: 77.321,
-    pincode: 765356,
-    salesPerson: "Vikas",
-  },
-  {
-    finalStatus: "pending",
-    _id: "5eb801a6f6bafd1114262fdd",
-    user: "5eb7bac08d3f3a11c85992f7",
-    companyName: "Ramesh Lubricants",
-    clientName: "ramesh chopra",
-    clientEmail: "vikasgrowthfile@gmail.com",
-    clientPhoneNumber: 7788991122,
-    clientAddress: "Bangalore, kt",
-    lat: 19.9615,
-    lng: 79.2961,
-    pincode: 765356,
-    salesPerson: "Vikas",
-  },
-];
+const Map = ({
+  getPendingLeads,
+  getMapData,
+  map: { mapData },
+  lead: { leads, loading },
+}) => {
+  var origin = null;
 
-console.log();
-
-const Map = ({ getPendingLeads, lead: { leads, loading } }) => {
   useEffect(() => {
     getPendingLeads();
   }, [getPendingLeads]);
 
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: "AIzaSyDzxk-4kdmKpoViGp4wWkuludbLtoXKSgU",
-  });
+  const [selectedMark, setSelectedMark] = useState(null);
 
-  if (loadError) return "Error";
-  if (!isLoaded) return "Loading...";
+  useEffect(() => {
+    const listener = (e) => {
+      if (e.key === "Escape") {
+        setSelectedMark(null);
+      }
+    };
+    window.addEventListener("keydown", listener);
+
+    return () => {
+      window.removeEventListener("keydown", listener);
+    };
+  }, []);
+
+  function success(position) {
+    const destination = [];
+    origin = `${position.coords.latitude},${position.coords.longitude}`;
+    leads.map((lead) =>
+      destination.push(`${lead.latLng[0].lat}, ${lead.latLng[0].lng}`)
+    );
+    getMapData(origin, destination);
+  }
+
+  function NearestLead() {
+    return (
+      <button
+        className="nearest-lead"
+        onClick={() => {
+          navigator.geolocation.getCurrentPosition(success, () => null, {
+            maximumAge: 10000,
+            timeout: 5000,
+            enableHighAccuracy: true,
+          });
+          mapData.map((element) => console.log(element));
+        }}
+      >
+        Nearest Lead
+      </button>
+    );
+  }
+
   return (
     <div>
+      <Locate />
+      <NearestLead />
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
-        zoom={8}
+        zoom={13}
         center={center}
         options={options}
       >
-        {leadData.map((leadData) => (
+        {leads.map((lead) => (
           <Marker
-            key={leadData._id}
+            key={lead._id}
             position={{
-              lat: leadData.lat,
-              lng: leadData.lng,
+              lat: lead.latLng[0].lat,
+              lng: lead.latLng[0].lng,
+            }}
+            onClick={() => {
+              setSelectedMark(lead);
             }}
           />
         ))}
+
+        {selectedMark && (
+          <InfoWindow
+            onCloseClick={() => {
+              setSelectedMark(null);
+            }}
+            position={{
+              lat: selectedMark.latLng[0].lat,
+              lng: selectedMark.latLng[0].lng,
+            }}
+          >
+            <div>
+              <h2>{selectedMark.clientName}</h2>
+              <p>{selectedMark.clientAddress}</p>
+            </div>
+          </InfoWindow>
+        )}
       </GoogleMap>
     </div>
   );
 };
 
+function Locate() {
+  return (
+    <button
+      className="locate"
+      onClick={() => {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            console.log(position.coords.latitude);
+            console.log(position.coords.longitude);
+          },
+          () => null,
+          { maximumAge: 10000, timeout: 5000, enableHighAccuracy: true }
+        );
+      }}
+    >
+      <img src="/compass.svg" alt="compass" />
+    </button>
+  );
+}
+
 const mapStateToProps = (state) => ({
   lead: state.lead,
+  map: state.map,
 });
 
-export default connect(mapStateToProps, { getPendingLeads })(Map);
+export default connect(mapStateToProps, { getPendingLeads, getMapData })(Map);
