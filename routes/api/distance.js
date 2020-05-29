@@ -12,6 +12,19 @@ router.post("/location", (req, res) => {
 			res.json(result);
 		})
 		.catch((errResult) => {
+			console.log(errResult);
+			res.status(500).send("Main Server Error");
+		});
+});
+
+router.post("/coordinates", (req, res) => {
+	if (mode[req.body.mode] !== undefined) req.body.mode = "driving";
+	DistanceController(req.body.origin, req.body.destination, req.body.mode)
+		.then((result) => {
+			res.json(result);
+		})
+		.catch((errResult) => {
+			console.log(errResult);
 			res.status(500).send("Main Server Error");
 		});
 });

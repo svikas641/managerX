@@ -26,6 +26,7 @@ router.post("/", auth, async (req, res) => {
       clientPhoneNumber: req.body.clientPhoneNumber,
       clientAddress: req.body.clientAddress,
       pincode: req.body.pincode,
+      latLng: req.body.latLng,
       salesPerson: user.name,
     });
 

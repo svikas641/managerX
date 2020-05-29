@@ -26,7 +26,10 @@ const LeadSchema = new Schema({
     type: String,
     required: true,
   },
-  latLng: { type: [Object], blackbox: true },
+  latLng: {
+    type: [Object],
+    blackbox: true,
+  },
   pincode: {
     type: Number,
     required: true,
