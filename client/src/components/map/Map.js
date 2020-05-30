@@ -65,7 +65,7 @@ const Map = ({
             timeout: 5000,
             enableHighAccuracy: true,
           });
-          mapData.map((element) => console.log(element));
+          //mapData.map((element) => console.log(element));
         }}
       >
         Nearest Lead
